@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpana Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ... (Saare CSS styles pehle jaise rahenge) ... */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; display: flex; background: #f0f2f5; color: #333; }
+        .sidebar { width: 250px; height: 100vh; background: linear-gradient(180deg, #1e90ff, #4169e1); padding: 20px; position: fixed; overflow-y: auto;}
+        .logo { color: white; font-size: 24px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .logo span { color: #ffd700; }
+        .sidebar-nav { margin-top: 20px; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 15px; color: white; padding: 15px; text-decoration: none; border-radius: 8px; margin-bottom: 10px; transition: all 0.3s; }
+        .sidebar-nav a:hover, .sidebar-nav a.active { background: rgba(255, 255, 255, 0.2); }
+        .main-content { margin-left: 250px; width: calc(100% - 250px); padding: 20px; }
+        .admin-header { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .admin-header h2 { font-size: 24px; display: flex; align-items: center; gap: 10px; margin: 0;}
+        .admin-content { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .admin-form { display: grid; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-weight: 500; }
+        .form-group input, .form-group textarea, .form-group select { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; width: 100%; }
+        .form-group textarea { height: 400px; resize: vertical; }
+        .upload-btn { background: #1e90ff; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; margin-top:10px;}
+        .upload-btn:hover { background: #4169e1; }
+        .movie-table, .poll-table, .ad-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .movie-table th, .movie-table td, .poll-table th, .poll-table td, .ad-table th, .ad-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; font-size: 14px; vertical-align: middle;}
+        .movie-table th, .poll-table th, .ad-table th { background: #f8f9fa; font-weight: 600; }
+        .poster-img { width: 50px; height: 75px; object-fit: cover; border-radius: 5px; border: 1px solid #eee; }
+        .url { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display:inline-block; vertical-align: middle;}
+        .actions { display: flex; gap: 8px; flex-wrap: wrap;}
+        .action-btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-weight: 500; font-size: 13px; }
+        .edit-btn { background: #ffd700; color: #333; }
+        .edit-btn:hover { background: #ffca28; }
+        .delete-btn { background: #ff4444; color: white; }
+        .delete-btn:hover { background: #cc0000; }
+        #posterPreview, #videoPreview { max-width: 150px; max-height: 200px; margin-top: 10px; border:1px solid #ddd; display: none; }
+        #videoPreview {max-height: 120px;}
+        /* Login section is removed, so no specific styles needed for it now if it's completely gone */
+        .hidden { display: none !important; } /* Still useful for toggling sections */
+        .form-group small.info { color: #555; font-size: 0.85em; margin-top: 3px; }
+
+        @media (max-width: 992px) {
+             .main-content { margin-left: 0; width: 100%; }
+             .sidebar { width: 100%; height: auto; position: static; display:flex; flex-direction: column; align-items: center;}
+             .sidebar-nav { display: flex; flex-wrap: wrap; justify-content: center;}
+             .sidebar-nav a { flex-basis: calc(50% - 10px); text-align: center; justify-content: center;}
+        }
+        @media (max-width: 768px) {
+            .admin-form { grid-template-columns: 1fr; }
+            .admin-header { flex-direction: column; align-items: flex-start;}
+            .admin-header h2 { margin-bottom: 10px;}
+             .sidebar-nav a { flex-basis: 100%; }
+             .url { max-width: 120px;}
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SECTION REMOVED from HTML structure -->
+    <!-- <div id="loginSection" style="width:100%; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #e9ecef;"> ... </div> -->
+
+    <!-- MAIN ADMIN INTERFACE (Now always visible on load if not using JS to hide initially) -->
+    <div class="sidebar" id="adminSidebar"> <!-- Removed 'hidden' class -->
+        <a href="#" class="logo"> <i class="fas fa-film"></i> ALP<span>ANA</span> Admin </a>
+        <div class="sidebar-nav">
+            <a onclick="navigateTo('dashboard')" id="nav-dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a onclick="navigateTo('movies')" id="nav-movies" class="active"><i class="fas fa-video"></i> Manage Movies</a>
+            <a onclick="navigateTo('polls')" id="nav-polls"><i class="fas fa-poll"></i> Manage Polls</a>
+            <a onclick="navigateTo('ads')" id="nav-ads"><i class="fas fa-ad"></i> Manage Ads</a>
+            <a onclick="navigateTo('editHtml')" id="nav-editHtml"><i class="fas fa-code"></i> Edit User Panel HTML</a>
+            <!-- Logout button might not make sense without login, but can be kept or removed -->
+            <!-- <a onclick="handleAdminLogout()"><i class="fas fa-sign-out-alt"></i> Logout</a> -->
+        </div>
+    </div>
+
+    <div class="main-content" id="adminMainContent"> <!-- Removed 'hidden' class -->
+        <div class="admin-header">
+            <h2 id="currentSectionTitle"><i class="fas fa-video"></i> Manage Movies</h2>
+            <div id="userGreeting">Welcome, Admin!</div> <!-- Can be changed or removed -->
+        </div>
+        
+        <!-- Dashboard, Movies, Polls, Ads, Edit HTML sections remain the same as before -->
+        <div class="admin-content-page" id="dashboardSection" style="display: none;"> <h3><i class="fas fa-tachometer-alt"></i> Dashboard</h3> <p>Welcome to the Alpana Admin Panel.</p> <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;"> <div class="admin-content" style="text-align:center;"><h4>Total Movies</h4><p id="totalMoviesStat" style="font-size: 24px; font-weight: bold;">0</p></div> <div class="admin-content" style="text-align:center;"><h4>Total Polls</h4><p id="totalPollsStat" style="font-size: 24px; font-weight: bold;">0</p></div> <div class="admin-content" style="text-align:center;"><h4>Total Ads</h4><p id="totalAdsStat" style="font-size: 24px; font-weight: bold;">0</p></div> </div> </div>
+        <div class="admin-content-page" id="moviesSection"> <div class="admin-content"> <h3>Add New Movie / Edit Movie</h3> <form class="admin-form" id="movieForm"> <input type="hidden" id="editMovieId"> <div class="form-group"> <label for="movieTitle">Movie Title</label> <input type="text" id="movieTitle" placeholder="Enter movie title" required> </div> <div class="form-group"> <label for="moviePosterFile">Upload Poster Image</label> <input type="file" id="moviePosterFile" accept="image/jpeg, image/png, image/webp"> <img id="posterPreview" src="#" alt="Poster Preview"/> <small class="info">If editing and no new poster is uploaded, the existing poster will be kept.</small> </div> <div class="form-group"> <label for="movieDownloadUrl">Download URL (Direct link to video)</label> <input type="url" id="movieDownloadUrl" placeholder="E.g., https://example.com/movie.mp4"> <small class="info">Provide this OR upload a video file below. URL takes precedence if both are given.</small> </div> <div class="form-group"> <label for="movieFile">OR Upload Video File (MP4, MKV, WebM)</label> <input type="file" id="movieFile" accept="video/mp4,video/mkv,video/webm"> <video id="videoPreview" controls style="display:none; max-width: 200px; margin-top:10px;"></video> <small class="info">Uploaded file generates a temporary browser link. For reliable sharing, use the Download URL field with a server-hosted video.</small> </div> <button type="submit" class="upload-btn" id="saveMovieBtn"><i class="fas fa-save"></i> Save Movie</button> <button type="button" class="action-btn delete-btn" onclick="clearMovieForm()" style="background-color: #6c757d;">Clear Form</button> </form> </div> <div class="admin-content" style="margin-top: 20px;"> <h3>Existing Movies</h3> <table class="movie-table"> <thead><tr><th>Poster</th><th>Title</th><th>Source Info</th><th>Actions</th></tr></thead> <tbody id="moviesList"></tbody> </table> </div> </div>
+        <div class="admin-content-page" id="pollsSection" style="display: none;"> <div class="admin-content"> <h3>Add New Poll / Edit Poll</h3> <form class="admin-form" id="pollForm"> <input type="hidden" id="editPollId"> <div class="form-group"> <label for="pollTitle">Poll Title/Question</label> <input type="text" id="pollTitle" placeholder="Enter poll title" required> </div> <div class="form-group"> <label for="pollLink">Poll Link (e.g., Google Forms)</label> <input type="url" id="pollLink" placeholder="Enter poll URL" required> </div> <button type="submit" class="upload-btn" id="savePollBtn"><i class="fas fa-save"></i> Save Poll</button> <button type="button" class="action-btn delete-btn" onclick="clearPollForm()" style="background-color: #6c757d;">Clear Form</button> </form> </div> <div class="admin-content" style="margin-top: 20px;"> <h3>Existing Polls</h3> <table class="poll-table"> <thead><tr><th>Title</th><th>Link</th><th>Actions</th></tr></thead> <tbody id="pollsList"></tbody> </table> </div> </div>
+        <div class="admin-content-page" id="adsSection" style="display: none;"> <div class="admin-content"> <h3>Add New Ad / Edit Ad</h3> <form class="admin-form" id="adForm"> <input type="hidden" id="editAdId"> <div class="form-group"> <label for="adTitle">Ad Title (for identification)</label> <input type="text" id="adTitle" placeholder="Enter ad title" required> </div> <div class="form-group"> <label for="adLink">Ad Redirect Link</label> <input type="url" id="adLink" placeholder="Enter ad URL" required> </div> <button type="submit" class="upload-btn" id="saveAdBtn"><i class="fas fa-save"></i> Save Ad</button> <button type="button" class="action-btn delete-btn" onclick="clearAdForm()" style="background-color: #6c757d;">Clear Form</button> </form> </div> <div class="admin-content" style="margin-top: 20px;"> <h3>Existing Ads</h3> <p><small>User panel uses the first ad from this list for downloads.</small></p> <table class="ad-table"> <thead><tr><th>Title</th><th>Link</th><th>Actions</th></tr></thead> <tbody id="adsList"></tbody> </table> </div> </div>
+        <div class="admin-content-page" id="editHtmlSection" style="display: none;"> <div class="admin-content"> <h3>Edit User Panel HTML</h3> <form class="admin-form" id="editHtmlForm"> <div class="form-group"> <label for="userPanelHtml">User Panel HTML Code</label> <textarea id="userPanelHtml" placeholder="Paste or edit user panel HTML code here..."></textarea> <small>Caution: Incorrect HTML can break your user panel.</small> </div> <div class="actions"> <button type="submit" class="upload-btn"><i class="fas fa-save"></i> Save HTML</button> <button type="button" class="action-btn preview-btn" onclick="previewUserPanelHtml()"><i class="fas fa-eye"></i> Preview</button> <button type="button" class="action-btn" onclick="loadUserPanelHtmlToEditor()" style="background-color:#5bc0de; color:white;"><i class="fas fa-download"></i> Load Current</button> </div> </form> </div> </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION (Password related constants removed) ---
+        // const ADMIN_PASSWORD_KEY = 'alpanaAdminPassword'; 
+        // const DEFAULT_ADMIN_PASSWORD = 'alpana'; 
+        const MOVIES_STORAGE_KEY = 'movies'; const POLLS_STORAGE_KEY = 'polls';
+        const ADS_STORAGE_KEY = 'ads'; const USER_PANEL_HTML_KEY = 'userPanelHtml';
+
+        // --- DOM Elements --- (Pehle jaise, login related elements ki ab zaroorat nahi)
+        // const loginSectionDiv = document.getElementById('loginSection'); // REMOVED
+        const adminSidebarDiv = document.getElementById('adminSidebar'); 
+        const adminMainContentDiv = document.getElementById('adminMainContent'); 
+        // const loginErrorMessageP = document.getElementById('loginErrorMessage'); // REMOVED
+        const currentSectionTitleH2 = document.getElementById('currentSectionTitle');
+        const movieForm = document.getElementById('movieForm'); const editMovieIdInput = document.getElementById('editMovieId'); const movieTitleInput = document.getElementById('movieTitle'); const moviePosterFileInput = document.getElementById('moviePosterFile'); const posterPreviewImg = document.getElementById('posterPreview'); const movieDownloadUrlInput = document.getElementById('movieDownloadUrl'); const movieFileInput = document.getElementById('movieFile'); const videoPreview = document.getElementById('videoPreview'); const moviesListTbody = document.getElementById('moviesList'); const saveMovieBtn = document.getElementById('saveMovieBtn');
+        const pollForm=document.getElementById("pollForm"),editPollIdInput=document.getElementById("editPollId"),pollTitleInput=document.getElementById("pollTitle"),pollLinkInput=document.getElementById("pollLink"),pollsListTbody=document.getElementById("pollsList"),savePollBtn=document.getElementById("savePollBtn"),adForm=document.getElementById("adForm"),editAdIdInput=document.getElementById("editAdId"),adTitleInput=document.getElementById("adTitle"),adLinkInput=document.getElementById("adLink"),adsListTbody=document.getElementById("adsList"),saveAdBtn=document.getElementById("saveAdBtn"),editHtmlForm=document.getElementById("editHtmlForm"),userPanelHtmlTextarea=document.getElementById("userPanelHtml");
+
+        // --- Utility Functions --- (Pehle jaise)
+        function generateId() { return '_' + Math.random().toString(36).substr(2, 9); }
+        function imageToDataUrl(file, callback) { if (!file) { callback(null); return; } const reader = new FileReader(); reader.onloadend = () => callback(reader.result); reader.onerror = () => { console.error("File reading error."); callback(null); }; reader.readAsDataURL(file); }
+        
+        // --- AUTHENTICATION FUNCTIONS REMOVED or MODIFIED ---
+        // async function hashPassword(password) { ... } // REMOVED
+        // async function checkAndSetDefaultPassword() { ... } // REMOVED
+        // async function handleAdminLogin() { ... } // REMOVED
+        // function handleAdminLogout() { ... } // Can be removed or kept if you want a symbolic logout
+        
+        // Modified checkLoginOnLoad to directly show content
+        function showAdminContentOnLoad() {
+            // No login check needed, directly show the admin panel.
+            // HTML elements for sidebar and main content should not have 'hidden' class by default
+            // or we remove it here if they do.
+            adminSidebarDiv.classList.remove('hidden'); // Ensure it's visible
+            adminMainContentDiv.classList.remove('hidden'); // Ensure it's visible
+            
+            navigateTo(sessionStorage.getItem('alpanaAdminLastSection') || 'dashboard'); // Navigate to last or default section
+            loadAllData(); // Load data for display
+        }
+        
+        // --- NAVIGATION & UI --- (Pehle jaise)
+        const sectionTitles = { dashboard: '<i class="fas fa-tachometer-alt"></i> Dashboard', movies: '<i class="fas fa-video"></i> Manage Movies', polls: '<i class="fas fa-poll"></i> Manage Polls', ads: '<i class="fas fa-ad"></i> Manage Ads', editHtml: '<i class="fas fa-code"></i> Edit User Panel HTML' };
+        function navigateTo(sectionId) { document.querySelectorAll('.admin-content-page').forEach(page => page.style.display = 'none'); document.querySelectorAll('.sidebar-nav a').forEach(link => link.classList.remove('active')); const targetPage = document.getElementById(sectionId + 'Section'); if (targetPage) { targetPage.style.display = 'block'; currentSectionTitleH2.innerHTML = sectionTitles[sectionId] || "Admin Panel"; const activeNavLink = document.getElementById('nav-' + sectionId); if (activeNavLink) activeNavLink.classList.add('active'); sessionStorage.setItem('alpanaAdminLastSection', sectionId); if (sectionId === 'editHtml') loadUserPanelHtmlToEditor(); if (sectionId === 'dashboard') updateDashboardStats(); } else { console.warn(`Section ${sectionId}Section not found.`); navigateTo('dashboard');} }
+        function updateDashboardStats() { document.getElementById('totalMoviesStat').textContent = (JSON.parse(localStorage.getItem(MOVIES_STORAGE_KEY)) || []).length; document.getElementById('totalPollsStat').textContent = (JSON.parse(localStorage.getItem(POLLS_STORAGE_KEY)) || []).length; document.getElementById('totalAdsStat').textContent = (JSON.parse(localStorage.getItem(ADS_STORAGE_KEY)) || []).length; }
+
+        // --- Data CRUD --- (Pehle jaise)
+        function getItems(key) { return JSON.parse(localStorage.getItem(key)) || []; }
+        function saveItems(key, items) { localStorage.setItem(key, JSON.stringify(items)); }
+
+        // == MOVIES == (Logic remains the same as the previous version with sourceType)
+        moviePosterFileInput.addEventListener('change', function(event) { const file = event.target.files[0]; if (file) { imageToDataUrl(file, function(dataUrl) { if (dataUrl) { posterPreviewImg.src = dataUrl; posterPreviewImg.style.display = 'block'; } else { posterPreviewImg.style.display = 'none'; } }); } else { posterPreviewImg.style.display = 'none'; } });
+        let uploadedVideoObjectURL = null; 
+        movieFileInput.addEventListener('change', function(event) { const file = event.target.files[0]; if (uploadedVideoObjectURL) { URL.revokeObjectURL(uploadedVideoObjectURL); uploadedVideoObjectURL = null; } if (file) { uploadedVideoObjectURL = URL.createObjectURL(file); videoPreview.src = uploadedVideoObjectURL; videoPreview.style.display = 'block'; movieDownloadUrlInput.value = ""; movieDownloadUrlInput.disabled = true; } else { videoPreview.style.display = 'none'; videoPreview.src = ''; movieDownloadUrlInput.disabled = false; } });
+        movieForm.addEventListener('submit', function(event) { event.preventDefault(); const title = movieTitleInput.value.trim(); let downloadUrlValue = movieDownloadUrlInput.value.trim(); const posterFile = moviePosterFileInput.files[0]; const videoFile = movieFileInput.files[0]; const movieId = editMovieIdInput.value; if (!title) { alert("Movie title is required."); return; } let finalDownloadUrl = ''; let sourceType = 'url'; if (downloadUrlValue) { finalDownloadUrl = downloadUrlValue; sourceType = 'url'; if (videoFile && uploadedVideoObjectURL) { alert("Both Download URL and Video File were provided. Using the Download URL."); movieFileInput.value = ''; if (uploadedVideoObjectURL) { URL.revokeObjectURL(uploadedVideoObjectURL); uploadedVideoObjectURL = null; } videoPreview.style.display = 'none'; videoPreview.src = ''; } } else if (videoFile && uploadedVideoObjectURL) { finalDownloadUrl = uploadedVideoObjectURL; sourceType = 'blob'; } else { if (movieId) { const movies = getItems(MOVIES_STORAGE_KEY); const existingMovie = movies.find(m => m.id === movieId); if (existingMovie && existingMovie.downloadUrl && existingMovie.sourceType === 'url') { finalDownloadUrl = existingMovie.downloadUrl; sourceType = 'url'; } else if (existingMovie && existingMovie.downloadUrl && existingMovie.sourceType === 'blob') { alert("This movie used an uploaded file. Please re-upload the video or provide a Download URL to update video source."); return; } else { alert("Please provide a Download URL or Upload a Video File for the movie."); return; } } else { alert("Please provide a Download URL or Upload a Video File for the movie."); return; } } let movies = getItems(MOVIES_STORAGE_KEY); imageToDataUrl(posterFile, function(posterDataUrl) { let movieData; if (movieId) { const movieIndex = movies.findIndex(m => m.id === movieId); if (movieIndex > -1) { movieData = { ...movies[movieIndex], title, downloadUrl: finalDownloadUrl, sourceType }; if (posterDataUrl) { movieData.poster = posterDataUrl; } movies[movieIndex] = movieData; } else { alert("Movie not found for editing."); return; } } else { if (!posterDataUrl && !posterFile) { alert("Poster image is required for a new movie."); return; } movieData = { id: generateId(), title, poster: posterDataUrl, downloadUrl: finalDownloadUrl, sourceType, addedAt: Date.now() }; movies.push(movieData); } saveItems(MOVIES_STORAGE_KEY, movies); loadMoviesAdmin(); clearMovieForm(); alert(`Movie ${movieId ? 'updated' : 'added'} successfully!`); updateDashboardStats(); }); });
+        function loadMoviesAdmin() { const movies = getItems(MOVIES_STORAGE_KEY); moviesListTbody.innerHTML = ''; movies.forEach(movie => { const row = moviesListTbody.insertRow(); let sourceTypeDisplay = movie.sourceType === 'blob' ? 'Uploaded File (Temp)' : 'Direct URL'; if (movie.downloadUrl && movie.downloadUrl.startsWith("blob:") && movie.sourceType !== 'blob') { sourceTypeDisplay = 'Uploaded File (Temp)'; } let displayUrl = movie.downloadUrl || 'N/A'; if (displayUrl.length > 30) displayUrl = displayUrl.substring(0, 27) + "..."; row.innerHTML = `<td><img src="${movie.poster || 'https://via.placeholder.com/50x75?text=NoPoster'}" alt="Poster" class="poster-img"></td><td>${movie.title}</td><td><span class="url" title="${movie.downloadUrl || 'N/A'}">${displayUrl}</span><br><small style="color:#777">(${sourceTypeDisplay})</small></td><td class="actions"><button class="action-btn edit-btn" onclick="editMovie('${movie.id}')"><i class="fas fa-edit"></i> Edit</button><button class="action-btn delete-btn" onclick="deleteMovie('${movie.id}')"><i class="fas fa-trash"></i> Delete</button></td>`; }); }
+        function editMovie(id) { const movies = getItems(MOVIES_STORAGE_KEY); const movie = movies.find(m => m.id === id); if (movie) { clearMovieForm(); editMovieIdInput.value = movie.id; movieTitleInput.value = movie.title; if (movie.sourceType === 'url' || (movie.downloadUrl && !movie.downloadUrl.startsWith('blob:'))) { movieDownloadUrlInput.value = movie.downloadUrl; movieDownloadUrlInput.disabled = false; } else { movieDownloadUrlInput.value = ''; movieDownloadUrlInput.placeholder = "Re-upload video or provide new URL"; movieDownloadUrlInput.disabled = false; } if (movie.poster) { posterPreviewImg.src = movie.poster; posterPreviewImg.style.display = 'block'; } saveMovieBtn.innerHTML = '<i class="fas fa-save"></i> Update Movie'; movieTitleInput.focus(); } }
+        function deleteMovie(id) { if (confirm("Delete this movie?")) { saveItems(MOVIES_STORAGE_KEY, getItems(MOVIES_STORAGE_KEY).filter(m => m.id !== id)); loadMoviesAdmin(); updateDashboardStats(); } }
+        function clearMovieForm() { movieForm.reset(); editMovieIdInput.value = ''; posterPreviewImg.src = '#'; posterPreviewImg.style.display = 'none'; videoPreview.src = ''; videoPreview.style.display = 'none'; movieDownloadUrlInput.disabled = false; movieDownloadUrlInput.placeholder = "E.g., https://example.com/movie.mp4"; if (uploadedVideoObjectURL) { URL.revokeObjectURL(uploadedVideoObjectURL); uploadedVideoObjectURL = null; } saveMovieBtn.innerHTML = '<i class="fas fa-save"></i> Add Movie'; }
+
+        // == POLLS, ADS, HTML SECTIONS (Pehle jaise) ==
+        pollForm.addEventListener("submit",function(e){e.preventDefault();const t=pollTitleInput.value.trim(),o=pollLinkInput.value.trim(),n=editPollIdInput.value;if(t&&o){let e=getItems(POLLS_STORAGE_KEY);n?(-1<(e.findIndex(e=>e.id===n))&&(e[e.findIndex(e=>e.id===n)]={...e[e.findIndex(e=>e.id===n)],title:t,link:o})):e.push({id:generateId(),title:t,link:o,addedAt:Date.now()}),saveItems(POLLS_STORAGE_KEY,e),loadPollsAdmin(),clearPollForm(),alert(`Poll ${n?"updated":"added"} successfully!`),updateDashboardStats()}else alert("Poll title and link are required.")});function loadPollsAdmin(){const e=getItems(POLLS_STORAGE_KEY);pollsListTbody.innerHTML="",e.forEach(e=>{const t=pollsListTbody.insertRow();t.innerHTML=`<td>${e.title}</td><td><a href="${e.link}" target="_blank" class="url">${e.link}</a></td><td class="actions"><button class="action-btn edit-btn" onclick="editPoll('${e.id}')"><i class="fas fa-edit"></i> Edit</button><button class="action-btn delete-btn" onclick="deletePoll('${e.id}')"><i class="fas fa-trash"></i> Delete</button></td>`})}function editPoll(e){const t=getItems(POLLS_STORAGE_KEY).find(t=>t.id===e);t&&(editPollIdInput.value=t.id,pollTitleInput.value=t.title,pollLinkInput.value=t.link,savePollBtn.innerHTML='<i class="fas fa-save"></i> Update Poll',pollTitleInput.focus())}function deletePoll(e){confirm("Delete this poll?")&&(saveItems(POLLS_STORAGE_KEY,getItems(POLLS_STORAGE_KEY).filter(t=>t.id!==e)),loadPollsAdmin(),updateDashboardStats())}function clearPollForm(){pollForm.reset(),editPollIdInput.value="",savePollBtn.innerHTML='<i class="fas fa-save"></i> Add Poll'}
+        adForm.addEventListener("submit",function(e){e.preventDefault();const t=adTitleInput.value.trim(),o=adLinkInput.value.trim(),n=editAdIdInput.value;if(t&&o){let e=getItems(ADS_STORAGE_KEY);n?(-1<(e.findIndex(e=>e.id===n))&&(e[e.findIndex(e=>e.id===n)]={...e[e.findIndex(e=>e.id===n)],title:t,link:o})):e.push({id:generateId(),title:t,link:o,addedAt:Date.now()}),saveItems(ADS_STORAGE_KEY,e),loadAdsAdmin(),clearAdForm(),alert(`Ad ${n?"updated":"added"} successfully!`),updateDashboardStats()}else alert("Ad title and link are required.")});function loadAdsAdmin(){const e=getItems(ADS_STORAGE_KEY);adsListTbody.innerHTML="",e.forEach(e=>{const t=adsListTbody.insertRow();t.innerHTML=`<td>${e.title}</td><td><a href="${e.link}" target="_blank" class="url">${e.link}</a></td><td class="actions"><button class="action-btn edit-btn" onclick="editAd('${e.id}')"><i class="fas fa-edit"></i> Edit</button><button class="action-btn delete-btn" onclick="deleteAd('${e.id}')"><i class="fas fa-trash"></i> Delete</button></td>`})}function editAd(e){const t=getItems(ADS_STORAGE_KEY).find(t=>t.id===e);t&&(editAdIdInput.value=t.id,adTitleInput.value=t.title,adLinkInput.value=t.link,saveAdBtn.innerHTML='<i class="fas fa-save"></i> Update Ad',adTitleInput.focus())}function deleteAd(e){confirm("Delete this ad?")&&(saveItems(ADS_STORAGE_KEY,getItems(ADS_STORAGE_KEY).filter(t=>t.id!==e)),loadAdsAdmin(),updateDashboardStats())}function clearAdForm(){adForm.reset(),editAdIdInput.value="",saveAdBtn.innerHTML='<i class="fas fa-save"></i> Add Ad'}
+        editHtmlForm.addEventListener("submit",function(e){e.preventDefault();const t=userPanelHtmlTextarea.value;confirm("Are you sure you want to save this HTML for the user panel?")&&(localStorage.setItem(USER_PANEL_HTML_KEY,t),alert("User panel HTML saved successfully!"))});function loadUserPanelHtmlToEditor(){const e=localStorage.getItem(USER_PANEL_HTML_KEY);e?userPanelHtmlTextarea.value=e:(userPanelHtmlTextarea.value="<!-- No HTML saved. Paste HTML here. -->",alert("No custom HTML found."))}function previewUserPanelHtml(){const e=userPanelHtmlTextarea.value,t=window.open("","_blank");t?(t.document.write(e),t.document.close()):alert("Preview pop-up blocked.")}
+        
+        function loadAllData() { loadMoviesAdmin(); loadPollsAdmin(); loadAdsAdmin(); updateDashboardStats(); }
+        
+        // Call showAdminContentOnLoad directly when DOM is ready
+        document.addEventListener('DOMContentLoaded', showAdminContentOnLoad);
+    </script>
+</body>
+</html>
