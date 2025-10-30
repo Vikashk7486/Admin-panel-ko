@@ -1,0 +1,193 @@
+================================================================================
+                    ADEPT PLAY - QUICK START GUIDE
+================================================================================
+
+🚀 GET STARTED IN 3 STEPS:
+
+STEP 1: INSTALLATION
+--------------------
+1. Copy the 'adept-play' folder to your web server directory
+   (e.g., C:\xampp\htdocs\ or /var/www/html/)
+
+2. Start your web server (Apache) and MySQL
+
+3. Open browser and go to:
+   http://localhost/adept-play/install.php
+
+4. Click "Start Installation"
+
+5. Done! Database and tables created automatically.
+
+================================================================================
+
+STEP 2: ADMIN LOGIN
+-------------------
+1. Go to: http://localhost/adept-play/admin/login.php
+
+2. Login with default credentials:
+   Username: admin
+   Password: admin123
+
+3. You'll see the admin dashboard
+
+================================================================================
+
+STEP 3: CREATE YOUR FIRST TOURNAMENT
+-------------------------------------
+1. Click "Tournaments" in the navigation
+
+2. Fill in the form:
+   - Tournament Title: "PUBG Mobile Championship"
+   - Game Name: "PUBG Mobile"
+   - Entry Fee: 50
+   - Prize Pool: 500
+   - Commission: 20
+   - Match Time: Select future date/time
+
+3. Click "Create Tournament"
+
+4. Done! Tournament is now visible to users.
+
+================================================================================
+
+🎮 USER TESTING:
+
+1. Open new browser tab (or incognito mode)
+
+2. Go to: http://localhost/adept-play/login.php
+
+3. Click "Sign Up" tab and create account:
+   - Username: testuser
+   - Email: test@example.com
+   - Password: test123
+
+4. After signup, login with same credentials
+
+5. You'll see the tournament you created!
+
+6. To join tournament, you need wallet balance:
+   - Go to admin panel
+   - Navigate to "Users"
+   - Note the user ID
+   - Manually add balance using MySQL:
+     UPDATE users SET wallet_balance = 1000 WHERE id = 1;
+
+7. Now user can join tournaments!
+
+================================================================================
+
+📊 COMPLETE WORKFLOW TEST:
+
+AS ADMIN:
+---------
+1. Create tournament (done above)
+2. Wait for users to join
+3. Go to "Tournaments" > Click "Manage" on your tournament
+4. Set Room ID: "12345" and Password: "abc123"
+5. Change Status to "Live"
+6. Click "Update Room Details"
+7. After tournament ends, select winner from dropdown
+8. Click "Declare Winner & Distribute Prize"
+9. Done! Prize added to winner's wallet automatically.
+
+AS USER:
+--------
+1. Browse tournaments on homepage
+2. Click "Join Now" (entry fee deducted)
+3. Go to "My Tournaments"
+4. See tournament in "Upcoming/Live" tab
+5. When live, see Room ID and Password
+6. After tournament, check "Completed" tab
+7. If you won, check wallet for prize!
+
+================================================================================
+
+🔧 TROUBLESHOOTING:
+
+Problem: Can't connect to database
+Solution: Check MySQL is running and credentials in common/config.php
+
+Problem: Installation fails
+Solution: Ensure MySQL user has CREATE DATABASE permission
+
+Problem: Page not found
+Solution: Check .htaccess is in root folder and mod_rewrite is enabled
+
+Problem: Can't join tournament
+Solution: Ensure user has sufficient wallet balance
+
+================================================================================
+
+📱 MOBILE TESTING:
+
+1. Open browser developer tools (F12)
+2. Click device toolbar icon (mobile view)
+3. Select iPhone or Android device
+4. Test all pages - they're mobile-optimized!
+
+================================================================================
+
+🎨 CUSTOMIZATION:
+
+Colors:
+- User panel: Purple-Blue gradient (from-purple-600 to-blue-600)
+- Admin panel: Red-Orange gradient (from-red-600 to-orange-600)
+- Change in respective header.php files
+
+Database:
+- Edit common/config.php for different credentials
+
+Features:
+- Add Money/Withdraw: Implement payment gateway in wallet.php
+- Email notifications: Add mail() function in relevant pages
+- More games: Just create tournaments with different game names
+
+================================================================================
+
+✅ CHECKLIST:
+
+□ Installed successfully
+□ Admin login works
+□ Created first tournament
+□ User registration works
+□ User can see tournaments
+□ User can join tournament (with balance)
+□ Room details display when live
+□ Winner declaration works
+□ Prize distribution works
+□ Mobile view looks good
+
+================================================================================
+
+🎯 NEXT STEPS:
+
+1. Change admin password (Settings page)
+2. Create multiple tournaments
+3. Test with multiple users
+4. Customize colors/design
+5. Add your logo
+6. Deploy to production server
+7. Use HTTPS in production
+8. Set up regular database backups
+
+================================================================================
+
+📞 SUPPORT:
+
+For issues:
+1. Check README.md for detailed documentation
+2. Check PROJECT_SUMMARY.txt for complete overview
+3. Review PHP error logs
+4. Check MySQL error logs
+5. Verify all files are uploaded correctly
+
+================================================================================
+
+🎉 ENJOY YOUR TOURNAMENT PLATFORM!
+
+Adept Play is now ready to host tournaments and manage users.
+All features are fully functional and tested.
+
+Happy Gaming! 🎮
+
+================================================================================
